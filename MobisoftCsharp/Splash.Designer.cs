@@ -42,7 +42,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Century Gothic", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(218, 64);
+            this.label1.Location = new System.Drawing.Point(284, 64);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(312, 39);
             this.label1.TabIndex = 0;
@@ -52,7 +52,7 @@
             // 
             this.Logo.BackColor = System.Drawing.Color.Transparent;
             this.Logo.Image = ((System.Drawing.Image)(resources.GetObject("Logo.Image")));
-            this.Logo.Location = new System.Drawing.Point(290, 104);
+            this.Logo.Location = new System.Drawing.Point(331, 104);
             this.Logo.Name = "Logo";
             this.Logo.Size = new System.Drawing.Size(154, 106);
             this.Logo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
