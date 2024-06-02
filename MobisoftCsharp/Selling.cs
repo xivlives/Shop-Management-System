@@ -53,9 +53,18 @@ namespace MobisoftCsharp
             {
                 try
                 {
+                    string name = SALEItemtb.Text;
                     con.Open();
-                    String sql = "Insert into SalesRecordTbl values(" + SALEIDtb.Text + ", '" + SALEItemtb.Text.ToString() + "', '" + SALETypeCb.SelectedItem.ToString() + "', " + REMtb.Text + ", " + SOLDtb.Text + ", '"+SALEDatetb.Value.Date.ToString("yyyy/MM/dd")+"')";
+
+                    string query3 = "SELECT Product_Id FROM ProductsTbl WHERE Name LIKE @name ";
+                    SqlCommand command3 = new SqlCommand(query3, con);
+                    command3.Parameters.AddWithValue("@name", name);
+                    object result3 = command3.ExecuteScalar();
+                    int id = (int)result3;
+
+                    String sql = "Insert into SalesRecordTbl values(@productsId, " + SALEIDtb.Text + ", '" + SALEItemtb.Text.ToString() + "', '" + SALETypeCb.SelectedItem.ToString() + "', " + REMtb.Text + ", " + SOLDtb.Text + ", '"+SALEDatetb.Value.Date.ToString("yyyy/MM/dd")+"')";
                     SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@productsId", id);
                     cmd.ExecuteNonQuery();
                     MessageBox.Show("Item added successfully");
                     con.Close();
@@ -73,6 +82,8 @@ namespace MobisoftCsharp
                 }
             }
         }
+
+        
 
         private void Selling_Load(object sender, EventArgs e)
         {
@@ -107,36 +118,63 @@ namespace MobisoftCsharp
 
         private void showProfits()
         {
-            string Id = SALEIDtb.Text.ToString();
-            int priceBought;
-            int priceSold;
-            double profits;
-            con.Open();
-            string query = "SELECT AmmountSold FROM SalesRecordTbl WHERE Id = @Id";
-            SqlCommand command = new SqlCommand(query, con);
-            command.Parameters.AddWithValue("@Id", Id);
-            object result = command.ExecuteScalar();
-                priceSold = (int)result;
-            string query2 = "SELECT APrice FROM AccessoriesTbl WHERE BID = @Id";
-            SqlCommand command2 = new SqlCommand(query2, con);
-            command.Parameters.AddWithValue("@Id", Id);
-            object result2 = command.ExecuteScalar();
-                priceBought = (int)result;
-            if (priceBought > priceSold) 
+            try
             {
-                profits = priceSold - priceBought;
-                MessageBox.Show("you lost "+profits+" ");
-            }
-            else 
-            {
-                profits = priceSold - priceBought;
-                MessageBox.Show("you gained " + profits + " ");
+                string Id = SALEIDtb.Text;
+                int priceBought;
+                int product_id;
+                int priceSold;
+                double profits;
+                con.Open();
+                string query = "SELECT Product_Id  FROM SalesRecordTbl WHERE Id = @Id";
+                SqlCommand command = new SqlCommand(query, con);
+                command.Parameters.AddWithValue("@Id", Id);
+                object result = command.ExecuteScalar();
+                product_id = (int)result;
+                string query2 = "SELECT AmmountSold FROM SalesRecordTbl WHERE Product_Id = @Id";
+                SqlCommand command2 = new SqlCommand(query2, con);
+                command2.Parameters.AddWithValue("@Id", product_id);
+                object result2 = command2.ExecuteScalar();
+                priceSold = (int)result2;
 
 
+                if (SALETypeCb.SelectedItem.ToString() == "laptop" || SALETypeCb.SelectedItem.ToString() == "Laptop")
+                {
+                    string queryA = "SELECT MobPrice FROM LaptopTbl WHERE Product_Id = @Id";
+                    SqlCommand commandA = new SqlCommand(queryA, con);
+                    commandA.Parameters.AddWithValue("@Id", product_id);
+                    object result3 = commandA.ExecuteScalar();
+                    priceBought = (int)result3;
+                    profits = priceSold - priceBought;
+                    profitLabel.Text = profits.ToString();
+
+                }
+                else
+                {
+                    string query4 = "SELECT APrice FROM AccessoriesTbl WHERE Product_Id = @Id";
+                    SqlCommand command4 = new SqlCommand(query4, con);
+                    command4.Parameters.AddWithValue("@Id", product_id);
+                    object result4 = command4.ExecuteScalar();
+                    priceBought = (int)result4;
+                    profits = priceSold - priceBought;
+                    profitLabel.Text = profits.ToString();
+                }
+
+
+                con.Close();
+            }catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                con.Close();
             }
-            con.Close();
+            
 
             
+        }
+
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            showProfits();
         }
     }
 }

@@ -38,9 +38,10 @@ namespace MobisoftCsharp
             Random randomNum = new Random();
             int ProductId = randomNum.Next(1000, 10000);
             string productName = Brandtb.Text + Modeltb.Text;
+            string type = AType.Text;
 
 
-            if (InsertAccessory(ProductId, productName))
+            if (InsertAccessory(ProductId, productName, type))
             {
                 MessageBox.Show("item added successfully!");
                 // Clear input fields after successful insert (optional)
@@ -52,7 +53,7 @@ namespace MobisoftCsharp
             }
         }
 
-        private bool InsertAccessory(int productId, string productName)
+        private bool InsertAccessory(int productId, string productName, string type)
         {
 
             try
@@ -60,10 +61,11 @@ namespace MobisoftCsharp
                 con.Open();
 
                 // Insert into Products table
-                string productQuery = "INSERT INTO ProductsTbl (Product_id, Name) VALUES (@productId, @productName)";
+                string productQuery = "INSERT INTO ProductsTbl (Product_id, Name, Type) VALUES (@productId, @productName, @type)";
                 SqlCommand productCommand = new SqlCommand(productQuery, con);
                 productCommand.Parameters.AddWithValue("@productId", productId);
                 productCommand.Parameters.AddWithValue("@productName", productName);
+                productCommand.Parameters.AddWithValue("@type", type);
 
                 int productRowsAffected = productCommand.ExecuteNonQuery();
 
