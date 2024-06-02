@@ -47,28 +47,62 @@ namespace MobisoftCsharp
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (MobIDtb.Text == "" || BrandTb.Text == "" || ModelTb.Text == "" || PriceTb.Text == "" || StockTb.Text == "")
+            Random randomNum = new Random();
+            int ProductId = randomNum.Next(1000, 10000);
+            string productName = BrandTb.Text + ModelTb.Text;
+
+
+            if (InsertLaptop(ProductId, productName))
             {
-                MessageBox.Show("Missing Information");
+                MessageBox.Show("Laptop added successfully!");
+                // Clear input fields after successful insert (optional)
+                
             }
             else
             {
-                try
+                MessageBox.Show("Error adding laptop. Please check details and try again.");
+            }
+        }
+
+        private bool InsertLaptop(int productId, string productName)
+        {
+
+            try
+            {
+                con.Open();
+
+                // Insert into Products table
+                string productQuery = "INSERT INTO ProductsTbl (Product_id, Name) VALUES (@productId, @productName)";
+                SqlCommand productCommand = new SqlCommand(productQuery, con);
+                productCommand.Parameters.AddWithValue("@productId", productId);
+                productCommand.Parameters.AddWithValue("@productName", productName);
+
+                int productRowsAffected = productCommand.ExecuteNonQuery();
+
+                // Insert into Laptops table only if product insertion was successful
+                if (productRowsAffected > 0)
                 {
-                    con.Open();
-                    String sql = "Insert into LaptopTbl values(" + MobIDtb.Text + ", '" + BrandTb.Text.ToString() + "', '" + ModelTb.Text.ToString() + "', " + PriceTb.Text + ", " + StockTb.Text + ", " + RAMCb.SelectedItem.ToString() + ", " + ROMCb.SelectedItem.ToString() + ",'"+PROCSCb.SelectedItem.ToString()+"', " + VRAMCb.SelectedItem.ToString() + ", '"+GENCb.SelectedItem.ToString()+"')";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Laptop added successfully");
+                    string sql = "INSERT INTO LaptopTbl (Product_Id, MobID, MobBrand, MobModel, MobPrice, MobStock, MobRAM, MobROM, MobProcs, MobVRAM, MobGen) VALUES ( @productId," + MobIDtb.Text + ", '" + BrandTb.Text.ToString() + "', '" + ModelTb.Text.ToString() + "', " + PriceTb.Text + ", " + StockTb.Text + ", " + RAMCb.SelectedItem.ToString() + ", " + ROMCb.SelectedItem.ToString() + ",'" + PROCSCb.SelectedItem.ToString() + "', " + VRAMCb.SelectedItem.ToString() + ", '" + GENCb.SelectedItem.ToString() + "') ";
+                    SqlCommand laptopCommand = new SqlCommand(sql, con);
+                    laptopCommand.Parameters.AddWithValue("@productId", productId);
+
+                    int laptopRowsAffected = laptopCommand.ExecuteNonQuery();
                     con.Close();
                     populate();
+                    return laptopRowsAffected > 0; // Successful insert into Laptops table
+
+
                 }
-                catch (Exception Ex)
+                else
                 {
-                    MessageBox.Show(Ex.Message);
-                    con.Close();
+                    return false; // Product insert failed
                 }
-            }
+            }catch (Exception ex)
+                   {
+                       MessageBox.Show(ex.Message);
+                       return false;
+                   }
+            
         }
 
         private void MobileDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)

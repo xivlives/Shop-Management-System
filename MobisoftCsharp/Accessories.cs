@@ -32,31 +32,69 @@ namespace MobisoftCsharp
             con.Close();
         }
 
+
         private void guna2Button1_Click(object sender, EventArgs e)
         {
-            if (AIDtb.Text == "" || Brandtb.Text == "" || Modeltb.Text == "" || Pricetb.Text == "" || Stocktb.Text == "" || AType.Text == "")
+            Random randomNum = new Random();
+            int ProductId = randomNum.Next(1000, 10000);
+            string productName = Brandtb.Text + Modeltb.Text;
+
+
+            if (InsertAccessory(ProductId, productName))
             {
-                MessageBox.Show("Missing Information");
+                MessageBox.Show("item added successfully!");
+                // Clear input fields after successful insert (optional)
+
             }
             else
             {
-                try
-                {
-                    con.Open();
-                    String sql = "Insert into AccessoriesTbl values(" + AIDtb.Text + ", '" + Brandtb.Text.ToString() + "', '" + Modeltb.Text.ToString() + "', " + Pricetb.Text + ", " + Stocktb.Text + ", '"+AType.Text.ToString()+"')";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Item added successfully");
-                    con.Close();
-                    populate();
-                }
-                catch (Exception Ex)
-                {
-                    MessageBox.Show(Ex.Message);
-                    con.Close();
-                }
+                MessageBox.Show("Error adding item. Please check details and try again.");
             }
         }
+
+        private bool InsertAccessory(int productId, string productName)
+        {
+
+            try
+            {
+                con.Open();
+
+                // Insert into Products table
+                string productQuery = "INSERT INTO ProductsTbl (Product_id, Name) VALUES (@productId, @productName)";
+                SqlCommand productCommand = new SqlCommand(productQuery, con);
+                productCommand.Parameters.AddWithValue("@productId", productId);
+                productCommand.Parameters.AddWithValue("@productName", productName);
+
+                int productRowsAffected = productCommand.ExecuteNonQuery();
+
+                // Insert into Laptops table only if product insertion was successful
+                if (productRowsAffected > 0)
+                {
+                    string sql = "INSERT INTO AccessoriesTbl (Product_Id, BID, ABrand, AModel, APrice, AStock, Type) VALUES ( @productId," + AIDtb.Text + ", '" + Brandtb.Text.ToString() + "', '" + Modeltb.Text.ToString() + "', " + Pricetb.Text + ", " + Stocktb.Text + ", '" + AType.Text.ToString() + "') ";
+                    SqlCommand laptopCommand = new SqlCommand(sql, con);
+                    laptopCommand.Parameters.AddWithValue("@productId", productId);
+
+                    int laptopRowsAffected = laptopCommand.ExecuteNonQuery();
+                    con.Close();
+                    populate();
+                    return laptopRowsAffected > 0; // Successful insert into Laptops table
+
+
+                }
+                else
+                {
+                    return false; // Product insert failed
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+
+        }
+
+
 
         private void Accessories_Load(object sender, EventArgs e)
         {
@@ -93,6 +131,7 @@ namespace MobisoftCsharp
                 }
             }
         }
+
 
         private void AccessoriesDGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
