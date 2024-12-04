@@ -3,4 +3,5 @@ This Project is  adesktop application that can be used in a device store to mana
 can be all done with this desktop tool.
 ## TECH STACK
 I used C# and MSSQL as the db.
-
+## code 
+with designers and classes I was able to develop a good interface and also sstore an handle all data manipulation smoothly
